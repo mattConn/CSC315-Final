@@ -22,3 +22,10 @@ CREATE TABLE Favorites(
     FOREIGN KEY (bid) REFERENCES Bands(bid)
 );
 GRANT SELECT,INSERT,UPDATE ON CSC315FinalFall2020.Favorites TO api;
+
+-- determine which sub genres come from which regions
+SELECT DISTINCT S.sgname, R.rname FROM Band_Styles S join
+    (SELECT O.bname, C.rname FROM Band_Origins O JOIN Country C
+        WHERE C.cname = O.cname
+    ) as R
+    WHERE S.bname = R.bname;
