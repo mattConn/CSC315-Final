@@ -24,8 +24,11 @@ CREATE TABLE Favorites(
 GRANT SELECT,INSERT,UPDATE ON CSC315FinalFall2020.Favorites TO api;
 
 -- determine which sub genres come from which regions
-SELECT DISTINCT S.sgname, R.rname FROM Band_Styles S join
+SELECT DISTINCT S.sgname, R.rname FROM Band_Styles S JOIN
     (SELECT O.bname, C.rname FROM Band_Origins O JOIN Country C
         WHERE C.cname = O.cname
-    ) as R
+    ) AS R
     WHERE S.bname = R.bname;
+
+-- getting bands not in user (1) favorites
+SELECT * FROM Bands WHERE bid NOT IN (SELECT bid FROM Favorites WHERE uid=1);
