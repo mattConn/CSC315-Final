@@ -48,3 +48,32 @@ JOIN
     (SELECT bname,sgname FROM Band_Styles) as Styles -- bands subgenres not in favorites
     WHERE NotFavorites.bname=Styles.bname) AS SGNotInFavorites
 WHERE SGNotInFavorites.sgname=SGInFavorites.sgname; -- sg in favorites = sg not in favorites
+
+-- bands not in user (1) favorites that are of same genre as those in favorites (artist reccomendation)
+SELECT DISTINCT GNotInFavorites.bname,GNotInFavorites.gname FROM
+
+    (SELECT DISTINCT InFavorites.bname,BGenre.gname FROM 
+        (SELECT bname FROM Bands WHERE bid IN -- bands in favorites
+            (SELECT bid FROM Favorites WHERE uid=1)
+        ) as InFavorites
+        JOIN
+        (SELECT Style.bname,Style.sgname,SGenre.gname FROM  -- bands genres
+            Band_Styles Style JOIN Sub_Genre SGenre 
+                where Style.sgname=SGenre.sgname
+            ) AS BGenre
+    WHERE InFavorites.bname=BGenre.bname) AS GInFavorites
+
+    JOIN
+
+    (SELECT DISTINCT NotInFavorites.bname,BGenre.gname FROM 
+        (SELECT bname FROM Bands WHERE bid NOT IN -- bands not in favorites
+            (SELECT bid FROM Favorites WHERE uid=1)
+        ) as NotInFavorites
+        JOIN
+        (SELECT Style.bname,Style.sgname,SGenre.gname FROM  -- bands genres
+            Band_Styles Style JOIN Sub_Genre SGenre 
+                where Style.sgname=SGenre.sgname
+            ) AS BGenre
+    WHERE NotInFavorites.bname=BGenre.bname) AS GNotInFavorites
+
+WHERE GNotInFavorites.gname=GInFavorites.gname;
