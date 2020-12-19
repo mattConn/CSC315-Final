@@ -88,3 +88,19 @@ SELECT bname FROM Bands JOIN
         (select * from Favorites) AS F
     WHERE F.uid=OtherUsers.uid) AS OtherFavorites
 WHERE Bands.bid=OtherFavorites.bid;
+
+-- list other countries user (1) could travel to and hear favorite genres, excluding home
+SELECT DISTINCT cname FROM Band_Origins
+JOIN
+    (SELECT DISTINCT BGenre.* FROM 
+        (SELECT bname FROM Bands WHERE bid IN -- bands in favorites
+            (SELECT bid FROM Favorites WHERE uid=1)
+        ) as InFavorites
+        JOIN
+        (SELECT Style.bname,Style.sgname,SGenre.gname FROM  -- bands genres
+            Band_Styles Style JOIN Sub_Genre SGenre 
+                where Style.sgname=SGenre.sgname
+            ) AS BGenre
+    WHERE InFavorites.bname=BGenre.bname) AS UserGenres
+WHERE Band_Origins.bname=UserGenres.bname AND
+cname NOT IN (SELECT home_country FROM User WHERE uid=1);
