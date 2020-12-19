@@ -30,5 +30,21 @@ SELECT DISTINCT S.sgname, R.rname FROM Band_Styles S JOIN
     ) AS R
     WHERE S.bname = R.bname;
 
--- getting bands not in user (1) favorites
-SELECT * FROM Bands WHERE bid NOT IN (SELECT bid FROM Favorites WHERE uid=1);
+-- bands not in user (1) favorites that are of same subgenre as those in favorites (artist reccomendation)
+SELECT bname FROM
+(SELECT DISTINCT sgname FROM 
+    (SELECT bname FROM Bands WHERE bid IN -- bands in favorites
+        (SELECT bid FROM Favorites WHERE uid=1)
+    ) as InFavorites
+    JOIN
+    (SELECT bname,sgname FROM Band_Styles) as Styles -- bands subgenres in favorites
+    WHERE InFavorites.bname=Styles.bname) AS SGInFavorites
+JOIN
+(SELECT DISTINCT NotFavorites.bname,sgname FROM 
+    (SELECT bid,bname FROM Bands WHERE bid NOT IN -- bands not in favorites
+        (SELECT bid FROM Favorites WHERE uid=1)
+    ) as NotFavorites
+    JOIN
+    (SELECT bname,sgname FROM Band_Styles) as Styles -- bands subgenres not in favorites
+    WHERE NotFavorites.bname=Styles.bname) AS SGNotInFavorites
+WHERE SGNotInFavorites.sgname=SGInFavorites.sgname; -- sg in favorites = sg not in favorites
