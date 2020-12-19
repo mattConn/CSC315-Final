@@ -77,3 +77,14 @@ SELECT DISTINCT GNotInFavorites.bname,GNotInFavorites.gname FROM
     WHERE NotInFavorites.bname=BGenre.bname) AS GNotInFavorites
 
 WHERE GNotInFavorites.gname=GInFavorites.gname;
+
+-- find other users with same bands as user (1) favorites and list their favorites
+SELECT bname FROM Bands JOIN
+    (SELECT DISTINCT bid FROM
+        (SELECT uid FROM Favorites WHERE bid IN -- users with same favorite
+            (SELECT bid FROM Favorites WHERE uid=1)
+                AND uid!=1) AS OtherUsers
+        JOIN
+        (select * from Favorites) AS F
+    WHERE F.uid=OtherUsers.uid) AS OtherFavorites
+WHERE Bands.bid=OtherFavorites.bid;
