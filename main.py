@@ -9,8 +9,9 @@ try:
         user='api',
         database='CSC315FinalFall2020'
     )
-except:
+except mysql.connector.Error as err:
     print('Error connecting to database.')
+    print(err)
     sys.exit(1)
 
 cursor = db.cursor()
@@ -19,10 +20,10 @@ cursor = db.cursor()
 def execQuery(query, *args):
     try:
         cursor.execute(query % (args))
-    except:
-        return f'Could not execute query: {query % (args)}'
+    except mysql.connector.Error as err:
+        return err
 
-    return [*cursor]
+    return [*cursor.fetchall()]
 
 # determine which subgenres come from which regions
 def getSubGenreRegions():
@@ -34,37 +35,37 @@ def getSubGenreRegions():
     return execQuery(query)
 
 
-# bands not in user favorites that are of same subgenre as those in favorites (artist reccomendation)
-def reccomendBySubGenre(id):
+# bands not in user favorites that are of same subgenre as those in favorites (artist recommendation)
+def recommendBandsBySubGenre(userID):
     query = '''SELECT bname FROM
     (SELECT DISTINCT sgname FROM 
-        (SELECT bname FROM Bands WHERE bid IN -- bands in favorites
+        (SELECT bname FROM Bands WHERE bid IN
             (SELECT bid FROM Favorites WHERE uid=%s)
         ) as InFavorites
         JOIN
-        (SELECT bname,sgname FROM Band_Styles) as Styles -- bands subgenres in favorites
+        (SELECT bname,sgname FROM Band_Styles) as Styles
         WHERE InFavorites.bname=Styles.bname) AS SGInFavorites
     JOIN
     (SELECT DISTINCT NotFavorites.bname,sgname FROM 
-        (SELECT bid,bname FROM Bands WHERE bid NOT IN -- bands not in favorites
+        (SELECT bid,bname FROM Bands WHERE bid NOT IN
             (SELECT bid FROM Favorites WHERE uid=%s)
         ) as NotFavorites
         JOIN
-        (SELECT bname,sgname FROM Band_Styles) as Styles -- bands subgenres not in favorites
+        (SELECT bname,sgname FROM Band_Styles) as Styles
         WHERE NotFavorites.bname=Styles.bname) AS SGNotInFavorites
-    WHERE SGNotInFavorites.sgname=SGInFavorites.sgname; -- sg in favorites = sg not in favorites'''
-    return execQuery(query,id,id)
+    WHERE SGNotInFavorites.sgname=SGInFavorites.sgname;'''
+    return execQuery(query,userID, userID)
 
-# bands not in user favorites that are of same genre as those in favorites (artist reccomendation)
-def reccomendByGenre(id):
+# bands not in user favorites that are of same genre as those in favorites (artist recommendation)
+def recommendBandsByGenre(userID):
     query = '''SELECT DISTINCT GNotInFavorites.bname FROM
 
         (SELECT DISTINCT InFavorites.bname,BGenre.gname FROM 
-            (SELECT bname FROM Bands WHERE bid IN -- bands in favorites
+            (SELECT bname FROM Bands WHERE bid IN
                 (SELECT bid FROM Favorites WHERE uid=%s)
             ) as InFavorites
             JOIN
-            (SELECT Style.bname,Style.sgname,SGenre.gname FROM  -- bands genres
+            (SELECT Style.bname,Style.sgname,SGenre.gname FROM
                 Band_Styles Style JOIN Sub_Genre SGenre 
                     where Style.sgname=SGenre.sgname
                 ) AS BGenre
@@ -73,20 +74,51 @@ def reccomendByGenre(id):
         JOIN
 
         (SELECT DISTINCT NotInFavorites.bname,BGenre.gname FROM 
-            (SELECT bname FROM Bands WHERE bid NOT IN -- bands not in favorites
+            (SELECT bname FROM Bands WHERE bid NOT IN
                 (SELECT bid FROM Favorites WHERE uid=%s)
             ) as NotInFavorites
             JOIN
-            (SELECT Style.bname,Style.sgname,SGenre.gname FROM  -- bands genres
+            (SELECT Style.bname,Style.sgname,SGenre.gname FROM
                 Band_Styles Style JOIN Sub_Genre SGenre 
                     where Style.sgname=SGenre.sgname
                 ) AS BGenre
         WHERE NotInFavorites.bname=BGenre.bname) AS GNotInFavorites
 
     WHERE GNotInFavorites.gname=GInFavorites.gname;'''
-    return execQuery(query,id,id)
+    return execQuery(query,userID, userID)
 
-pprint(reccomendBySubGenre(1))
+# find other users with same bands as favorites and list their favorites
+def recommendBandsByOtherUsers(userID):
+    query = '''SELECT bname FROM Bands JOIN
+        (SELECT DISTINCT bid FROM
+            (SELECT uid FROM Favorites WHERE bid IN
+                (SELECT bid FROM Favorites WHERE uid=%s)
+                    AND uid!=%s) AS OtherUsers
+            JOIN
+            (select * from Favorites) AS F
+        WHERE F.uid=OtherUsers.uid) AS OtherFavorites
+    WHERE Bands.bid=OtherFavorites.bid;'''
+    return execQuery(query, userID, userID)
+
+
+# list other countries user could travel to and hear favorite genres, excluding home
+def recommendCountriesByGenre(userID):
+    query = '''SELECT DISTINCT cname FROM Band_Origins
+    JOIN
+        (SELECT DISTINCT BGenre.* FROM 
+            (SELECT bname FROM Bands WHERE bid IN
+                (SELECT bid FROM Favorites WHERE uid=%s)
+            ) as InFavorites
+            JOIN
+            (SELECT Style.bname,Style.sgname,SGenre.gname FROM
+                Band_Styles Style JOIN Sub_Genre SGenre 
+                    where Style.sgname=SGenre.sgname
+                ) AS BGenre
+        WHERE InFavorites.bname=BGenre.bname) AS UserGenres
+    WHERE Band_Origins.bname=UserGenres.bname AND
+    cname NOT IN (SELECT home_country FROM User WHERE uid=%s);'''
+    return execQuery(query, userID, userID)
+
 
 # db.commit()
-db.close()
+# db.close()
