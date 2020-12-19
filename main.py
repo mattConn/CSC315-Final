@@ -35,7 +35,7 @@ def getSubGenreRegions():
     return execQuery(query)
 
 
-# bands not in user favorites that are of same subgenre as those in favorites (artist recommendation)
+# get bands not in user favorites that are of same subgenre as those in favorites
 def recommendBandsBySubGenre(userID):
     query = '''SELECT bname FROM
     (SELECT DISTINCT sgname FROM 
@@ -56,7 +56,7 @@ def recommendBandsBySubGenre(userID):
     WHERE SGNotInFavorites.sgname=SGInFavorites.sgname;'''
     return execQuery(query,userID, userID)
 
-# bands not in user favorites that are of same genre as those in favorites (artist recommendation)
+# get bands not in user favorites that are of same genre as those in favorites
 def recommendBandsByGenre(userID):
     query = '''SELECT DISTINCT GNotInFavorites.bname FROM
 
@@ -87,7 +87,7 @@ def recommendBandsByGenre(userID):
     WHERE GNotInFavorites.gname=GInFavorites.gname;'''
     return execQuery(query,userID, userID)
 
-# find other users with same bands as favorites and list their favorites
+# find other users with same favorites as user, and list their favorites
 def recommendBandsByOtherUsers(userID):
     query = '''SELECT bname FROM Bands JOIN
         (SELECT DISTINCT bid FROM
@@ -101,7 +101,7 @@ def recommendBandsByOtherUsers(userID):
     return execQuery(query, userID, userID)
 
 
-# list other countries user could travel to and hear favorite genres, excluding home
+# list other countries user could travel to and hear favorite genres, excluding home country
 def recommendCountriesByGenre(userID):
     query = '''SELECT DISTINCT cname FROM Band_Origins
     JOIN
