@@ -7,7 +7,7 @@ try:
     db  = mysql.connector.connect(
         host='localhost',
         user='api',
-        password='foobarbaz', #  hashing with sha2 plugin
+        password='foobarbaz', 
         database='CSC315FinalFall2020'
     )
 except mysql.connector.Error as err:
@@ -205,5 +205,7 @@ addFavorite(3, 'Testament')
 # show results
 pprint(execQuery('SELECT * FROM Favorites;'))
 
+# uncomment for changes to persist
 # db.commit()
+
 # db.close()
