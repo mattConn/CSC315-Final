@@ -1,4 +1,9 @@
--- Please go to line 117 for updates
+-- CSC 315
+-- Fall 2020
+-- Final Project
+-- Matthew Connelly
+
+-- Please go to line 123 for updates
 
 CREATE DATABASE CSC315FinalFall2020;
 USE CSC315FinalFall2020;

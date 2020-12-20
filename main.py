@@ -1,3 +1,8 @@
+# CSC 315
+# Fall 2020
+# Final Project
+# Matthew Connelly
+
 import mysql.connector
 from pprint import pprint
 import sys
