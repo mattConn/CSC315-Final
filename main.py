@@ -215,5 +215,5 @@ if __name__ == '__main__':
     db.commit() # make changes persist
     db.close() # close connection
     print('Changes committed to database.')
-else:
+else: # running interactively
     print('Changes not committed to database. Use db.commit()')
