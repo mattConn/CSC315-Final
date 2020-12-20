@@ -21,7 +21,7 @@ CREATE TABLE Favorites(
     bid int,
     FOREIGN KEY (bid) REFERENCES Bands(bid)
 );
-GRANT SELECT,INSERT,UPDATE ON CSC315FinalFall2020.Favorites TO api;
+GRANT SELECT,INSERT,UPDATE,DELETE ON CSC315FinalFall2020.Favorites TO api;
 
 -- determine which sub genres come from which regions
 SELECT DISTINCT S.sgname, R.rname FROM Band_Styles S JOIN
