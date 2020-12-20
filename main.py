@@ -129,10 +129,18 @@ def addUser(name, country):
     return execQuery(query, name, country)
 
 def addFavorite(userID,bandName):
-    bandExists = len(execQuery('SELECT bname FROM Bands WHERE bname=%s',bandName)) > 0
+    # check for band existence
+    bandExists = len( execQuery('SELECT bname FROM Bands WHERE bname=\'%s\';',bandName)['result'] ) > 0
 
-    if not bandExists: return [1,f'Could not add {bandName} to Favorites']
+    if not bandExists:
+        return getError(True, f'Error: {bandName} does not exist.')
 
+    # get Band ID (bid)
+    bandID = execQuery('SELECT bid FROM Bands WHERE bname=\'%s\';',bandName)['result'][0][0]
+
+    query = 'INSERT INTO Favorites values (%s, %s);'
+    return execQuery(query, userID, bandID)
+    
 
 def removeFavorite(userID):
     pass
