@@ -23,7 +23,7 @@ def execQuery(query, *args):
     except mysql.connector.Error as err:
         return err
 
-    return [*cursor.fetchall()]
+    return [*cursor]
 
 # determine which subgenres come from which regions
 def getSubGenreRegions():
@@ -118,6 +118,17 @@ def recommendCountriesByGenre(userID):
     WHERE Band_Origins.bname=UserGenres.bname AND
     cname NOT IN (SELECT home_country FROM User WHERE uid=%s);'''
     return execQuery(query, userID, userID)
+
+# insert new users
+def addUser(name, country):
+    query = 'INSERT INTO User VALUES (NULL, \'%s\', \'%s\');'
+    return execQuery(query, name, country)
+
+def addFavorite(userID):
+    pass
+
+def removeFavorite(userID):
+    pass
 
 
 # db.commit()
