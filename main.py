@@ -21,9 +21,9 @@ def execQuery(query, *args):
     try:
         cursor.execute(query % (args))
     except mysql.connector.Error as err:
-        return err
+        return {'err': True, 'result': err}
 
-    return [*cursor]
+    return {'err': False, 'result': [*cursor]} # like golang returns
 
 # determine which subgenres come from which regions
 def getSubGenreRegions():
@@ -124,8 +124,11 @@ def addUser(name, country):
     query = 'INSERT INTO User VALUES (NULL, \'%s\', \'%s\');'
     return execQuery(query, name, country)
 
-def addFavorite(userID):
-    pass
+def addFavorite(userID,bandName):
+    bandExists = len(execQuery('SELECT bname FROM Bands WHERE bname=%s',bandName)) > 0
+
+    if not bandExists: return [1,f'Could not add {bandName} to Favorites']
+
 
 def removeFavorite(userID):
     pass
