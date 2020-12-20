@@ -17,9 +17,9 @@ except mysql.connector.Error as err:
 
 cursor = db.cursor()
 
-# simple error control
+# simple error maker
 def getError(error, result):
-    return (error, result) # like golang returns
+    return (error, result) # like golang returns ( err,y := f(x) )
 
 # query execution
 def execQuery(query, *args):
@@ -137,9 +137,9 @@ def recommendCountriesByGenre(userID):
 
 # insert new users
 # ----------------
-def addUser(name, country):
-    query = 'INSERT INTO User VALUES (NULL, \'%s\', \'%s\');'
-    return execQuery(query, name, country)
+def addUser(userID, name, country):
+    query = 'INSERT INTO User VALUES (%s, \'%s\', \'%s\');'
+    return execQuery(query, userID, name, country)
 
 # insert favorite band by band name
 # ---------------------------------
@@ -179,9 +179,9 @@ def removeFavorite(userID,bandName):
 # ========================================
 
 # inserting 3 users
-addUser('Henry Finnegan', 'United States')
-addUser('Rickie Fritz', 'Mongolia')
-addUser('Claire Nava', 'Norway')
+addUser(1,'Henry Finnegan', 'United States')
+addUser(2,'Rickie Fritz', 'Mongolia')
+addUser(3,'Claire Nava', 'Norway')
 
 # show results
 pprint(execQuery('SELECT * FROM User;'))
@@ -205,7 +205,7 @@ addFavorite(3, 'Testament')
 # show results
 pprint(execQuery('SELECT * FROM Favorites;'))
 
-# uncomment for changes to persist
+# uncomment for db changes to persist
 # db.commit()
 
 # db.close()
