@@ -16,14 +16,18 @@ except mysql.connector.Error as err:
 
 cursor = db.cursor()
 
+# simple error control
+def getError(error, result):
+    return {'err': error, 'result': result} # like golang returns
+
 # query execution
 def execQuery(query, *args):
     try:
         cursor.execute(query % (args))
     except mysql.connector.Error as err:
-        return {'err': True, 'result': err}
+        return getError(True, err)
 
-    return {'err': False, 'result': [*cursor]} # like golang returns
+    return getError(False, [*cursor])
 
 # determine which subgenres come from which regions
 def getSubGenreRegions():
