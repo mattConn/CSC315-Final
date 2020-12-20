@@ -7,6 +7,7 @@ try:
     db  = mysql.connector.connect(
         host='localhost',
         user='api',
+        password='foobarbaz', #  hashing with sha2 plugin
         database='CSC315FinalFall2020'
     )
 except mysql.connector.Error as err:

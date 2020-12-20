@@ -1,7 +1,7 @@
 USE CSC315FinalFall2020;
 
 -- create user api with read-only access to initial tables and rw/update for additional tables
-CREATE USER api;
+CREATE USER 'api' IDENTIFIED BY 'foobarbaz';
 GRANT SELECT ON CSC315FinalFall2020.* TO api;
 
 
