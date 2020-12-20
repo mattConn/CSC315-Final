@@ -210,7 +210,10 @@ addFavorite(3, 'Testament')
 # show results
 pprint(execQuery('SELECT * FROM Favorites;'))
 
-# uncomment for db changes to persist
-# db.commit()
-
-# db.close()
+# if not running interactively
+if __name__ == '__main__':
+    db.commit() # make changes persist
+    db.close() # close connection
+    print('Changes committed to database.')
+else:
+    print('Changes not committed to database. Use db.commit()')
